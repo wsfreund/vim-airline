@@ -81,6 +81,13 @@ function! airline#extensions#hunks#get_hunks()
         let string .= printf('%s%s ', s:hunk_symbols[i], hunks[i])
       endif
     endfor
+  else
+    let string='no-cvs'
+    if g:airline_powerline_fonts == 1
+      let string .= '()'
+    else
+      let string .= '(!)'
+    endif
   endif
   let b:airline_hunks = string
   let b:airline_changenr = b:changedtick
