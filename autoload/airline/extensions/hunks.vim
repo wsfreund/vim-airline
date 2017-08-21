@@ -8,6 +8,7 @@ if !get(g:, 'loaded_signify', 0) && !get(g:, 'loaded_gitgutter', 0) && !get(g:, 
 endif
 
 let s:non_zero_only = get(g:, 'airline#extensions#hunks#non_zero_only', 0)
+let s:only_when_any_changed = get(g:, 'airline#extensions#hunks#only_when_any_changed', 0)
 let s:hunk_symbols = get(g:, 'airline#extensions#hunks#hunk_symbols', ['+', '~', '-'])
 
 function! s:get_hunks_signify()
@@ -44,7 +45,7 @@ endfunction
 
 function! s:get_hunks()
   if !exists('b:source_func') || get(b:, 'source_func', '') is# 's:get_hunks_empty'
-    if get(g:, 'loaded_signify') && sy#buffer_is_active()
+    if get(g:, 'loaded_signify') && sy#buffer_is_active() && !empty(get(b:sy,'vcs',''))
       let b:source_func = 's:get_hunks_signify'
     elseif exists('*GitGutterGetHunkSummary')
       let b:source_func = 's:get_hunks_gitgutter'
@@ -76,7 +77,11 @@ function! airline#extensions#hunks#get_hunks()
   let hunks = s:get_hunks()
   let string = ''
   if !empty(hunks)
+    let changed=0
     for i in [0, 1, 2]
+      if hunks[i] > 0
+        let changed=1
+      endif 
       if (s:non_zero_only == 0 && winwidth(0) > 100) || hunks[i] > 0
         let string .= printf('%s%s ', s:hunk_symbols[i], hunks[i])
       endif
